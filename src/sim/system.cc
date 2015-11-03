@@ -208,6 +208,7 @@ bool System::breakpoint()
    be a parameter on the CPU object or something...
  */
 int rgdb_wait = -1;
+//int rgdb_wait = 0;
 
 int
 System::registerThreadContext(ThreadContext *tc, int assigned)

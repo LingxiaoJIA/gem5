@@ -75,8 +75,9 @@ enum {
     GDB64_NUMREGS = 98
 };
 
-const int GDB_REG_BYTES = std::max(GDB64_NUMREGS * sizeof(uint64_t),
-                                   GDB32_NUMREGS * sizeof(uint32_t));
+//const int GDB_REG_BYTES = std::max(GDB64_NUMREGS * sizeof(uint64_t),
+//                                   GDB32_NUMREGS * sizeof(uint32_t));
+const int GDB_REG_BYTES = GDB32_NUMREGS * sizeof(uint32_t);
 
 class RemoteGDB : public BaseRemoteGDB
 {
