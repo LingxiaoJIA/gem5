@@ -169,10 +169,11 @@
 #   include <CursorCtl.h>		/* Need cursor control interfaces */
 #endif
 
-//#define GEM5
-//#ifdef GEM5
 #include "../util/m5/m5op.h"
-//#endif
+//#define GEM5
+#ifdef GEM5
+#include "../util/m5/m5op.h"
+#endif
 
 #define MAXQUEENS 100 			/* Max number of queens */
 #define MAXRANKS  MAXQUEENS		/* Max number of ranks (rows) */
@@ -200,11 +201,6 @@ char *progname = NULL;		/* The name of this program */
 
 void pboard(void);
 void find(register int level);
-
-
-void my_m5_checkpoint(uint64_t ns_delay, uint64_t ns_period) {
-    return m5_checkpoint(ns_delay, ns_period);
-}
 
 int my_test(int n1) {
     return n1+1;
