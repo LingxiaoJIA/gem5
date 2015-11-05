@@ -184,6 +184,7 @@ doSimLoop(EventQueue *eventq)
     // set the per thread current eventq pointer
     curEventQueue(eventq);
     eventq->handleAsyncInsertions();
+    int num = 0;
 
     while (1) {
         // there should always be at least one event (the SimLoopExitEvent
@@ -191,6 +192,7 @@ doSimLoop(EventQueue *eventq)
         assert(!eventq->empty());
         assert(curTick() <= eventq->nextTick() &&
                "event scheduled in the past");
+        printf("num = %d\n",  num++);
 
         Event *exit_event = eventq->serviceOne();
         if (exit_event != NULL) {

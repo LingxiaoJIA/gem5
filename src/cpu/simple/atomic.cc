@@ -619,7 +619,9 @@ AtomicSimpleCPU::tick()
     // instruction takes at least one cycle
     if (latency < clockPeriod())
         latency = clockPeriod();
-
+    /* Modified */
+    printf("curTick = %lu, nextTick = %lu\n", curTick(), curTick()+latency);
+    /* End Modified */
     if (_status != Idle)
         schedule(tickEvent, curTick() + latency);
 }

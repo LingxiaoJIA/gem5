@@ -724,8 +724,12 @@ TimingSimpleCPU::IcachePort::recvTimingResp(PacketPtr pkt)
 
     if (next_tick == curTick())
         cpu->completeIfetch(pkt);
-    else
+    else {
+    /* Modified */
+        printf("IcachePort: curTick = %lu, nextTick = %lu\n", curTick(), next_tick);
+    /* End Modified */
         tickEvent.schedule(pkt, next_tick);
+    }
 
     return true;
 }
@@ -843,6 +847,9 @@ TimingSimpleCPU::DcachePort::recvTimingResp(PacketPtr pkt)
         cpu->completeDataAccess(pkt);
     } else {
         if (!tickEvent.scheduled()) {
+        /* Modified */
+            printf("DcachePort: curTick = %lu, nextTick = %lu\n", curTick(), next_tick);
+        /* End Modified */
             tickEvent.schedule(pkt, next_tick);
         } else {
             // In the case of a split transaction and a cache that is

@@ -149,7 +149,7 @@ vector<BaseRemoteGDB *> debuggers;
 void
 debugger()
 {
-    static int current_debugger = -1;
+    static int current_debugger = 0;
     if (current_debugger >= 0 && current_debugger < (int)debuggers.size()) {
         BaseRemoteGDB *gdb = debuggers[current_debugger];
         if (!gdb->isattached())
