@@ -627,18 +627,19 @@ AtomicSimpleCPU::tick()
             }
 
         }
-        if(fault != NoFault || !stayAtPC)
+        if(fault != NoFault || !stayAtPC) {
+            // instruction takes at least one cycle
+            if (latency < clockPeriod())
+                latency = clockPeriod();
+            currTick = curTick()+latency;
             advancePC(fault);
+        }
     }
 
     if (tryCompleteDrain())
         return;
 
-    // instruction takes at least one cycle
-    if (latency < clockPeriod())
-        latency = clockPeriod();
     /* Modified */
-    currTick = curTick()+latency;
     printf("curTick = %lu, nextTick = %lu\n", curTick(), currTick);
     if (_status != Idle)
         schedule(tickEvent, currTick);
