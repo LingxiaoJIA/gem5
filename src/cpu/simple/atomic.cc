@@ -271,7 +271,7 @@ AtomicSimpleCPU::suspendContext(ThreadID thread_num)
 Tick
 AtomicSimpleCPU::AtomicCPUDPort::recvAtomicSnoop(PacketPtr pkt)
 {
-    DPRINTF(SimpleCPU, "received snoop pkt for addr:%#x %s\n", pkt->getAddr(),
+    DPRINTF(SimpleCPU, "Atomic: received snoop pkt for addr:%#x %s\n", pkt->getAddr(),
             pkt->cmdString());
 
     // X86 ISA: Snooping an invalidation for monitor/mwait
@@ -282,7 +282,7 @@ AtomicSimpleCPU::AtomicCPUDPort::recvAtomicSnoop(PacketPtr pkt)
 
     // if snoop invalidates, release any associated locks
     if (pkt->isInvalidate()) {
-        DPRINTF(SimpleCPU, "received invalidation for addr:%#x\n",
+        DPRINTF(SimpleCPU, "Atomic: received invalidation for addr:%#x\n",
                 pkt->getAddr());
         TheISA::handleLockedSnoop(cpu->thread, pkt, cacheBlockMask);
     }
@@ -293,7 +293,7 @@ AtomicSimpleCPU::AtomicCPUDPort::recvAtomicSnoop(PacketPtr pkt)
 void
 AtomicSimpleCPU::AtomicCPUDPort::recvFunctionalSnoop(PacketPtr pkt)
 {
-    DPRINTF(SimpleCPU, "received snoop pkt for addr:%#x %s\n", pkt->getAddr(),
+    DPRINTF(SimpleCPU, "Functional: received snoop pkt for addr:%#x %s\n", pkt->getAddr(),
             pkt->cmdString());
 
     // X86 ISA: Snooping an invalidation for monitor/mwait
@@ -304,7 +304,7 @@ AtomicSimpleCPU::AtomicCPUDPort::recvFunctionalSnoop(PacketPtr pkt)
 
     // if snoop invalidates, release any associated locks
     if (pkt->isInvalidate()) {
-        DPRINTF(SimpleCPU, "received invalidation for addr:%#x\n",
+        DPRINTF(SimpleCPU, "Functional: received invalidation for addr:%#x\n",
                 pkt->getAddr());
         TheISA::handleLockedSnoop(cpu->thread, pkt, cacheBlockMask);
     }
@@ -314,6 +314,7 @@ Fault
 AtomicSimpleCPU::readMem(Addr addr, uint8_t * data,
                          unsigned size, unsigned flags)
 {
+    DPRINTF(SimpleCPU, "Read Memory %#x\n", addr);
     // use the CPU's statically allocated read request and packet objects
     Request *req = &data_read_req;
 
@@ -401,6 +402,7 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size,
 {
 
     static uint8_t zero_array[64] = {};
+    DPRINTF(SimpleCPU, "Write Memory %#x\n", addr);
 
     if (data == NULL) {
         assert(size <= 64);
@@ -505,6 +507,22 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size,
     }
 }
 
+TheISA::PCState *thePCState = nullptr;
+Tick startTick = 0;
+Tick currTick = 0;
+
+void dumpTiming();
+
+void
+dumpTiming()
+{
+    FILE *fp;
+    fp = fopen("/tmp/time.dat", "w");
+    if (fp != NULL) {
+        fprintf(fp, "%ld", currTick - startTick);
+        fclose(fp);
+    }
+}
 
 void
 AtomicSimpleCPU::tick()
@@ -620,10 +638,11 @@ AtomicSimpleCPU::tick()
     if (latency < clockPeriod())
         latency = clockPeriod();
     /* Modified */
-    printf("curTick = %lu, nextTick = %lu\n", curTick(), curTick()+latency);
-    /* End Modified */
+    currTick = curTick()+latency;
+    printf("curTick = %lu, nextTick = %lu\n", curTick(), currTick);
     if (_status != Idle)
-        schedule(tickEvent, curTick() + latency);
+        schedule(tickEvent, currTick);
+    /* End Modified */
 }
 
 void

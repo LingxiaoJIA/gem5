@@ -13,3 +13,4 @@ ext/mcpat/regression/*/*.out
 tags
 *.hlp
 .hg*
+*.out
