@@ -169,8 +169,7 @@
 #   include <CursorCtl.h>		/* Need cursor control interfaces */
 #endif
 
-#include "../util/m5/m5op.h"
-//#define GEM5
+// #define GEM5
 #ifdef GEM5
 #include "../util/m5/m5op.h"
 #endif
@@ -202,9 +201,6 @@ char *progname = NULL;		/* The name of this program */
 void pboard(void);
 void find(register int level);
 
-int my_test(int n1) {
-    return n1+1;
-}
 
 /*-------------------------- main() ----------------------------
 **  MAIN program.  The main purpose of this routine is to deal
@@ -282,10 +278,10 @@ void main(int argc, char **argv)
    for(i = 0; i < MAXDIAGS; ++i) fordiag[i] = bakdiag[i] = EMPTY;
 
    /* Find all solutions (begin recursion) */
+   find(0);
 #ifdef GEM5
    m5_checkpoint(0,0);
 #endif
-   find(0);
    if(printing && solutions) putchar('\n');
 
    /* Report results */
