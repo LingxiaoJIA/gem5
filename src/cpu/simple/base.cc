@@ -547,18 +547,6 @@ BaseSimpleCPU::advancePC(const Fault &fault)
 
     //Since we're moving to a new pc, zero out the offset
     fetchOffset = 0;
-    /* Modified */
-    if (curStaticInst) {
-        if (curStaticInst->isLastMicroop())
-            curMacroStaticInst = StaticInst::nullStaticInstPtr;
-        if (fault != NoFault) {
-            thread->decoder.reset();
-        }
-        TheISA::PCState pcState = thread->pcState();
-        TheISA::advancePC(pcState, curStaticInst);
-        thread->pcState(pcState);
-    }
-    /*
     if (fault != NoFault) {
         curMacroStaticInst = StaticInst::nullStaticInstPtr;
         fault->invoke(tc, curStaticInst);
@@ -572,8 +560,6 @@ BaseSimpleCPU::advancePC(const Fault &fault)
             thread->pcState(pcState);
         }
     }
-    */
-    /* End Modified */
 
     if (branchPred && curStaticInst && curStaticInst->isControl()) {
         // Use a fake sequence number since we only have one
