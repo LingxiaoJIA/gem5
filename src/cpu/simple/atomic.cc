@@ -511,13 +511,13 @@ TheISA::PCState *thePCState = nullptr;
 Tick startTick = 0;
 Tick currTick = 0;
 
-void dumpTiming();
+void dumpTiming(const char* filename);
 
 void
-dumpTiming()
+dumpTiming(const char* filename)
 {
     FILE *fp;
-    fp = fopen("/tmp/time.dat", "w");
+    fp = fopen(filename, "w");
     if (fp != NULL) {
         fprintf(fp, "%ld", currTick - startTick);
         fclose(fp);
@@ -629,9 +629,11 @@ AtomicSimpleCPU::tick()
         }
         if(fault != NoFault || !stayAtPC) {
             // instruction takes at least one cycle
+            /* Modified */
             if (latency < clockPeriod())
                 latency = clockPeriod();
             currTick = curTick()+latency;
+            /* End Modified */
             advancePC(fault);
         }
     }
