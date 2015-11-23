@@ -310,6 +310,8 @@ AtomicSimpleCPU::AtomicCPUDPort::recvFunctionalSnoop(PacketPtr pkt)
     }
 }
 
+int normal = 1;
+
 Fault
 AtomicSimpleCPU::readMem(Addr addr, uint8_t * data,
                          unsigned size, unsigned flags)
@@ -368,7 +370,9 @@ AtomicSimpleCPU::readMem(Addr addr, uint8_t * data,
             if (req->isPrefetch()) {
                 return NoFault;
             } else {
-                return fault;
+                /* Modified */
+                    return fault;
+                /* End Modified */
             }
         }
 
@@ -490,7 +494,9 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size,
             if (fault != NoFault && req->isPrefetch()) {
                 return NoFault;
             } else {
-                return fault;
+                /* Modified */
+                    return fault;
+                /* End Modified */
             }
         }
 
@@ -530,6 +536,7 @@ AtomicSimpleCPU::tick()
     DPRINTF(SimpleCPU, "Tick\n");
 
     Tick latency = 0;
+    currTick = curTick();
 
     for (int i = 0; i < width || locked; ++i) {
         numCycles++;
@@ -632,7 +639,7 @@ AtomicSimpleCPU::tick()
             /* Modified */
             if (latency < clockPeriod())
                 latency = clockPeriod();
-            currTick = curTick()+latency;
+            currTick = currTick+latency; // NOTICE:
             /* End Modified */
             advancePC(fault);
         }
@@ -642,7 +649,7 @@ AtomicSimpleCPU::tick()
         return;
 
     /* Modified */
-    printf("curTick = %lu, nextTick = %lu\n", curTick(), currTick);
+    // printf("curTick = %lu, nextTick = %lu\n", curTick(), currTick);
     if (_status != Idle)
         schedule(tickEvent, currTick);
     /* End Modified */

@@ -94,7 +94,7 @@ void
 takeCheckpoint(Tick when)
 {
     if (!when)
-        when = curTick() + 1;
+        when = curTick();
     exitSimLoop("checkpoint", 0, when, 0);
 }
 
