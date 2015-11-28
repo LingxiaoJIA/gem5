@@ -1,0 +1,16 @@
+syntax: glob
+build
+parser.out
+parsetab.py
+cscope.*
+*.pyc
+*~
+.*.swp
+m5out
+src/doxygen
+ext/dramsim2/DRAMSim2
+ext/mcpat/regression/*/*.out
+tags
+*.hlp
+.hg*
+*.out
