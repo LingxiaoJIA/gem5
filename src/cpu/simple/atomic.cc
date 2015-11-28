@@ -271,7 +271,7 @@ AtomicSimpleCPU::suspendContext(ThreadID thread_num)
 Tick
 AtomicSimpleCPU::AtomicCPUDPort::recvAtomicSnoop(PacketPtr pkt)
 {
-    DPRINTF(SimpleCPU, "received snoop pkt for addr:%#x %s\n", pkt->getAddr(),
+    DPRINTF(SimpleCPU, "Atomic: received snoop pkt for addr:%#x %s\n", pkt->getAddr(),
             pkt->cmdString());
 
     // X86 ISA: Snooping an invalidation for monitor/mwait
@@ -282,7 +282,7 @@ AtomicSimpleCPU::AtomicCPUDPort::recvAtomicSnoop(PacketPtr pkt)
 
     // if snoop invalidates, release any associated locks
     if (pkt->isInvalidate()) {
-        DPRINTF(SimpleCPU, "received invalidation for addr:%#x\n",
+        DPRINTF(SimpleCPU, "Atomic: received invalidation for addr:%#x\n",
                 pkt->getAddr());
         TheISA::handleLockedSnoop(cpu->thread, pkt, cacheBlockMask);
     }
@@ -293,7 +293,7 @@ AtomicSimpleCPU::AtomicCPUDPort::recvAtomicSnoop(PacketPtr pkt)
 void
 AtomicSimpleCPU::AtomicCPUDPort::recvFunctionalSnoop(PacketPtr pkt)
 {
-    DPRINTF(SimpleCPU, "received snoop pkt for addr:%#x %s\n", pkt->getAddr(),
+    DPRINTF(SimpleCPU, "Functional: received snoop pkt for addr:%#x %s\n", pkt->getAddr(),
             pkt->cmdString());
 
     // X86 ISA: Snooping an invalidation for monitor/mwait
@@ -304,16 +304,19 @@ AtomicSimpleCPU::AtomicCPUDPort::recvFunctionalSnoop(PacketPtr pkt)
 
     // if snoop invalidates, release any associated locks
     if (pkt->isInvalidate()) {
-        DPRINTF(SimpleCPU, "received invalidation for addr:%#x\n",
+        DPRINTF(SimpleCPU, "Functional: received invalidation for addr:%#x\n",
                 pkt->getAddr());
         TheISA::handleLockedSnoop(cpu->thread, pkt, cacheBlockMask);
     }
 }
 
+int normal = 1;
+
 Fault
 AtomicSimpleCPU::readMem(Addr addr, uint8_t * data,
                          unsigned size, unsigned flags)
 {
+    DPRINTF(SimpleCPU, "Read Memory %#x\n", addr);
     // use the CPU's statically allocated read request and packet objects
     Request *req = &data_read_req;
 
@@ -367,7 +370,9 @@ AtomicSimpleCPU::readMem(Addr addr, uint8_t * data,
             if (req->isPrefetch()) {
                 return NoFault;
             } else {
-                return fault;
+                /* Modified */
+                    return fault;
+                /* End Modified */
             }
         }
 
@@ -401,6 +406,7 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size,
 {
 
     static uint8_t zero_array[64] = {};
+    DPRINTF(SimpleCPU, "Write Memory %#x\n", addr);
 
     if (data == NULL) {
         assert(size <= 64);
@@ -488,7 +494,9 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size,
             if (fault != NoFault && req->isPrefetch()) {
                 return NoFault;
             } else {
-                return fault;
+                /* Modified */
+                    return fault;
+                /* End Modified */
             }
         }
 
@@ -505,6 +513,22 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size,
     }
 }
 
+TheISA::PCState *thePCState = nullptr;
+Tick startTick = 0;
+Tick currTick = 0;
+
+void dumpTiming(const char* filename);
+
+void
+dumpTiming(const char* filename)
+{
+    FILE *fp;
+    fp = fopen(filename, "w");
+    if (fp != NULL) {
+        fprintf(fp, "%ld", currTick - startTick);
+        fclose(fp);
+    }
+}
 
 void
 AtomicSimpleCPU::tick()
@@ -512,6 +536,7 @@ AtomicSimpleCPU::tick()
     DPRINTF(SimpleCPU, "Tick\n");
 
     Tick latency = 0;
+    currTick = curTick();
 
     for (int i = 0; i < width || locked; ++i) {
         numCycles++;
@@ -609,19 +634,25 @@ AtomicSimpleCPU::tick()
             }
 
         }
-        if(fault != NoFault || !stayAtPC)
+        if(fault != NoFault || !stayAtPC) {
+            // instruction takes at least one cycle
+            /* Modified */
+            if (latency < clockPeriod())
+                latency = clockPeriod();
+            currTick = currTick+latency; // NOTICE:
+            /* End Modified */
             advancePC(fault);
+        }
     }
 
     if (tryCompleteDrain())
         return;
 
-    // instruction takes at least one cycle
-    if (latency < clockPeriod())
-        latency = clockPeriod();
-
+    /* Modified */
+    // printf("curTick = %lu, nextTick = %lu\n", curTick(), currTick);
     if (_status != Idle)
-        schedule(tickEvent, curTick() + latency);
+        schedule(tickEvent, currTick);
+    /* End Modified */
 }
 
 void
