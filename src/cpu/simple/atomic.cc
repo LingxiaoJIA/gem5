@@ -371,7 +371,7 @@ AtomicSimpleCPU::readMem(Addr addr, uint8_t * data,
                 return NoFault;
             } else {
                 /* Modified */
-                    return fault;
+                    return NoFault;
                 /* End Modified */
             }
         }
@@ -495,7 +495,7 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size,
                 return NoFault;
             } else {
                 /* Modified */
-                    return fault;
+                    return NoFault;
                 /* End Modified */
             }
         }
