@@ -261,12 +261,12 @@
                         "name": "workload", 
                         "cmd": [
                             "CRC32/crc", 
-                            "adpcm/data/small.pcm"
+                            "adpcm/data/large.pcm"
                         ], 
                         "errout": "cerr", 
                         "useArchPT": false, 
                         "egid": 100, 
-                        "output": "CRC32/output_small.pcm"
+                        "output": "CRC32/output_large.pcm"
                     }
                 ], 
                 "name": "cpu", 
